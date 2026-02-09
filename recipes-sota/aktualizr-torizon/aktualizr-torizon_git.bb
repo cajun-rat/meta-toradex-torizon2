@@ -7,7 +7,7 @@ SRC_URI[uptanesign.md5sum] = "e8bc3dc4fd816cfa8aab16de7d56afdd"
 SRC_URI[uptanesign.sha256sum] = "cf97ea2bda7dd251cb18786b80741ee485ce2104d57329de2a3d8a4a8384f146"
 
 SRC_URI = " \
-  gitsm://github.com/toradex/aktualizr.git;protocol=https;branch=toradex-master \
+  gitsm://github.com/cajun-rat/aktualizr.git;protocol=https;branch=feat/offline-logs \
   file://aktualizr-torizon.service \
   file://gateway.url \
   file://root.crt \
@@ -15,7 +15,7 @@ SRC_URI = " \
   https://github.com/uptane/ota-tuf/releases/download/v${UPTANE_SIGN_PV}/cli-${UPTANE_SIGN_PV}.tgz;unpack=0;name=uptanesign \
 "
 
-SRCREV = "ec8bd5758fe71aa606082c614eb2e05cd6798a1d"
+SRCREV = "bc3d743c57c886a4d8c4b8ff18e02339addb8154"
 SRCREV:use-head-next = "${AUTOREV}"
 
 S = "${WORKDIR}/git"
@@ -32,11 +32,12 @@ SYSTEMD_SERVICE:${PN} = "aktualizr-torizon.service"
 # For find_package(Git)
 OECMAKE_FIND_ROOT_PATH_MODE_PROGRAM = "BOTH"
 
-PACKAGECONFIG ?= "ostree dbus ${@bb.utils.filter('SOTA_CLIENT_FEATURES', 'hsm serialcan ubootenv', d)}"
+PACKAGECONFIG ?= "ostree dbus offline ${@bb.utils.filter('SOTA_CLIENT_FEATURES', 'hsm serialcan ubootenv', d)}"
 PACKAGECONFIG[warning-as-error] = "-DWARNING_AS_ERROR=ON,-DWARNING_AS_ERROR=OFF,"
 PACKAGECONFIG[ostree] = "-DBUILD_OSTREE=ON,-DBUILD_OSTREE=OFF,ostree,"
+PACKAGECONFIG[offline] = "-DBUILD_OFFLINE_UPDATES=ON,-DBUILD_OFFLINE_UPDATES=OFF,systemd,"
 PACKAGECONFIG[ubootenv] = ",,u-boot-fw-utils,u-boot-fw-utils"
-PACKAGECONFIG:remove:class-native = "ubootenv"
+PACKAGECONFIG:remove:class-native = "ubootenv dbus offline"
 PACKAGECONFIG:class-native = "sota-tools"
 PACKAGECONFIG[sota-tools] = "\
   -DBUILD_SOTA_TOOLS=ON -DGARAGE_SIGN_ARCHIVE=${WORKDIR}/cli-${UPTANE_SIGN_PV}.tgz -DGARAGE_SIGN_TOOL=${GARAGE_SIGN_TOOL}, \
